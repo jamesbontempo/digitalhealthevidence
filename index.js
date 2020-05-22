@@ -126,18 +126,23 @@ app.get("/", async (req, res) => {
 
     var next, window;
 
-    if (retstart < (count - 10)) {
-         next = "/?query=" + query + "&start=" + (retstart + 10) + "&sort=" + req.query.sort;
-         window = [retstart + 1, retstart + 10];
-     } else {
-         next = null;
-         window = [retstart + 1, count];
-    }
-
     const quickLinks = JSON.parse(fs.readFileSync("quicklinks.json", "utf8"));
 
-    const summaryResults = await fetch(eutils + esummary + "&query_key=" + queryKey + "&WebEnv=" + webEnv + "&retstart=" + retstart);
-    summaries = processSummary(summaryResults);
+    if (query) {
+        if (retstart < (count - 10)) {
+             next = "/?query=" + query + "&start=" + (retstart + 10) + "&sort=" + req.query.sort;
+             window = [retstart + 1, retstart + 10];
+         } else {
+             next = null;
+             window = [retstart + 1, count];
+        }
+        const summaryResults = await fetch(eutils + esummary + "&query_key=" + queryKey + "&WebEnv=" + webEnv + "&retstart=" + retstart);
+        summaries = processSummary(summaryResults);
+    } else {
+        next = null;
+        window = [];
+        summaries = [];
+    }
 
     res.render("index", {query: query, sort: req.query.sort, results: summaries, window: window, count: count, time: (Date.now() - start)/1000, next: next, quickLinks: quickLinks});
 });
