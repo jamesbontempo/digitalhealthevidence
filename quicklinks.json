@@ -1,0 +1,12 @@
+[
+    {"name": "MNCH", "link": "/?query=maternal OR newborn OR child&sort=relevant"},
+    {"name": "FPRH", "link": "/?query=family planning OR reproductive health&sort=relevant"},
+    {"name": "HIV/AIDS", "link": "/?query=hiv OR aids&sort=relevant"},
+    {"name": "Malaria", "link": "/?query=malaria&sort=relevant"},
+    {"name": "CHWs", "link": "/?query=community health worker OR chw&sort=relevant"},
+    {"name": "Decision-making", "link": "/?query=clinical decision making OR performance support&sort=relevant"},
+    {"name": "Education & training", "link": "/?query=((preservice OR medical) education) OR training OR mentor OR capacity building OR workforce&sort=relevant"},
+    {"name": "Behavior change", "link": "/?query=behavior change&sort=relevant"},
+    {"name": "Governance", "link": "/?query=governance OR policy OR regulation OR legislation&sort=relevant"},
+    {"name": "Privacy & security", "link": "?query=privacy+OR+security&sort=relevant"}
+]
