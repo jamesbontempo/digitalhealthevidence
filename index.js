@@ -111,10 +111,10 @@ app.set("views", "./views");
 app.set("view engine", "pug");
 
 app.get("/", async (req, res) => {
-    const query = (req.query.query && req.query.query != "") ? req.query.query : "";
+    const query = req.query.query;
     const sort = (req.query.sort && req.query.sort === "relevant") ? "relevance" : "most+recent";
     const eutils = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
-    const esearch = "esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&usehistory=y&sort=" + sort + "&term=(digital health OR mhealth)" + ((query) ? " AND (" + query + ")" : "");
+    const esearch = "esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&usehistory=y&sort=" + sort + "&term=(digital health OR mhealth)" + ((query && query !== "") ? " AND (" + query + ")" : "");
     const esummary = "efetch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&retmax=10&rettype=xml";
     const retstart = (req.query.start && Number.isInteger(parseFloat(req.query.start, 10))) ? parseFloat(req.query.start, 10) : 0;
     var count, queryKey, webEnv, summaries;
@@ -128,7 +128,7 @@ app.get("/", async (req, res) => {
 
     const quickLinks = JSON.parse(fs.readFileSync("quicklinks.json", "utf8"));
 
-    if (query) {
+    if (query || query === "") {
         if (retstart < (count - 10)) {
              next = "/?query=" + query + "&start=" + (retstart + 10) + "&sort=" + req.query.sort;
              window = [retstart + 1, retstart + 10];

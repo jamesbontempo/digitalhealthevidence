@@ -14,19 +14,20 @@ html
                     span(style="font-family:sans-serif;font-size:30px;font-weight:bold;color:#339944;margin:0px") Digital
                     span(style="font-family:sans-serif;font-size:30px;font-weight:bold;color:#4477cc;margin:0px") Health
                     span(style="font-family:sans-serif;font-size:30px;color:#666666;margin:0px") &nbsp;Evidence
+                if query === undefined
+                    span(style="position:absolute;top:14px;font-size:15px;font-family:sans-serif;color:grey;margin-left:10px;display:inline-block") #{count} relevant records indexed in PubMed
         div(style="margin-top:5px")
             div(style="position:relative;left:150px")
                 form(action="/")
                     input#query(name="query" value=query style="height:20px;width:600px;font-size:13px;padding-left:3px")
-                    select(name="sort" style="height:25px;font-size:15px;margin-left:5px")
+                    button(type="submit" style="height:25px;font-size:15px;margin-left:5px") Search for evidence
+                    select(name="sort" onchange="this.form.submit()" style="height:25px;font-size:15px;margin-left:5px")
                         option(value="recent" selected=(sort=="recent" || !sort)) Sort by most recent
                         option(value="relevant" selected=(sort=="relevant")) Sort by most relevant
-                    button(type="submit" style="height:25px;font-size:15px;margin-left:5px") Search for evidence
-                    if query
-                        span(style="height:25px;font-size:15px;font-family:sans-serif;margin-left:5px") Showing #{window[0]} to #{window[1]} of #{count} records
-                        span(style = "height:25px;font-size:15px;margin-left:3px;color:grey;font-family:sans-serif;margin-left:5px") (fetched in #{time} seconds)
-                    else
-                        span(style="height:25px;font-size:15px;font-family:sans-serif;color:grey;margin-left:5px") (Currently indexing #{count} records)
+                    if query || query === ""
+                        div(style="margin-top:10px")
+                            span(style="height:25px;font-size:15px;font-family:sans-serif") Showing #{window[0]} to #{window[1]} of #{count} records
+                            span(style = "height:25px;font-size:15px;margin-left:3px;color:grey;font-family:sans-serif;margin-left:5px") (fetched in #{time} seconds)
         div(style="margin-top:10px")
             div(style="position:relative;left:150px")
                 span(style="font-size:15px;font-family:sans-serif") Quick searches:
