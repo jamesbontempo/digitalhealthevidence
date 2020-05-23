@@ -1,0 +1,49 @@
+doctype html
+
+html
+    head
+        title Digital Health Evidence
+        link(rel="shortcut icon" href="favicon.ico")
+        script(async src="https://www.googletagmanager.com/gtag/js?id=UA-167414889-1")
+        script.
+            window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-167414889-1');
+    body
+        div
+            div(style="position:relative;left:150px;height:40px")
+                a(href="/" style="text-decoration:none")
+                    img(src="/static/logo_horizontal_small.png")
+        div(style="margin-top:5px")
+            div(style="position:relative;left:150px")
+                form(action="/search/")
+                    input(name="query" value=query style="height:20px;width:600px;font-size:13px;padding-left:3px")
+                    button(type="submit" onclick="document.getElementById('sort').value='relevant'; this.form.submit();" style="height:25px;font-size:15px;margin-left:5px") Search
+                    div(style="margin-top:10px")
+                        span(style="height:25px;font-size:15px;font-family:sans-serif") Showing #{window[0]} to #{window[1]} of #{count} records
+                        span(style = "height:25px;font-size:15px;margin-left:3px;color:grey;font-family:sans-serif;margin-left:5px") (fetched in #{time} seconds)
+                        select#sort(name="sort" onchange="this.form.submit();" style="height:25px;font-size:15px;margin-left:5px")
+                            option(value="relevant" selected=(sort=="relevant")) Sort by most relevant
+                            option(value="recent" selected=(sort=="recent" || !sort)) Sort by most recent
+        div(style="margin-top:10px")
+            div(style="position:relative;left:150px")
+                span(style="font-size:15px;font-family:sans-serif") Quick searches:
+                each link in quickLinks
+                    span(style="font-size:15px;font-family:sans-serif;padding-left:7px")
+                        a(href=link.link) #{link.name}
+        div#results(style="margin-top:10px")
+            each result in results
+                div(style="margin-bottom:20px")
+                    table(style="border-spacing:0px;border:1px solid #dddddd;width:100%")
+                        each field in result
+                            tr
+                                td(style="width:136px;font-size:14px;font-family:sans-serif;font-weight:bold;white-space:nowrap;text-align:right;vertical-align:top;background-color:#dddddd;padding:7px")=field.name
+
+                                if field.name === "Link"
+                                    td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px")
+                                        a(href=field.value)=field.value
+                                else
+                                    td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px")=field.value
+        div#navigate(style = "margin-top:10px")
+            div(style="position:relative;left:150px")
+                if next
+                    a(href=next)
+                        button(type="sumbit" style="height:25px;font-size:15px") Fetch more results

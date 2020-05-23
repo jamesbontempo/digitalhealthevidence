@@ -105,14 +105,28 @@ const app = express();
 
 app.use(parser.json());
 app.use(parser.urlencoded({extended: false}));
-app.use(favicon(path.join(__dirname, "favicon.ico")));
+app.use(favicon(path.join(__dirname, "static", "favicon.ico")));
 
 app.set("views", "./views");
 app.set("view engine", "pug");
 
-app.get("/", async (req, res) => {
+app.get("/", async (req,res) => {
+    const searchResults = await fetch("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&term=(digital health OR mhealth)");
+    var count = processSearch(searchResults)[0];
+    count -= (count % 1000);
+
+    const quickLinks = JSON.parse(fs.readFileSync("quicklinks.json", "utf8"));
+
+    res.render("index", {count: count, quickLinks: quickLinks});
+});
+
+app.get("/static/:file", (req, res) => {
+    res.sendFile(req.params.file, {root: path.join(__dirname, "static")});
+});
+
+app.get("/search/", async (req, res) => {
     const query = req.query.query;
-    const sort = (req.query.sort && req.query.sort === "relevant") ? "relevance" : "most+recent";
+    const sort = (req.query.sort && req.query.sort === "recent") ? "most+recent" : "relevance";
     const eutils = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
     const esearch = "esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&usehistory=y&sort=" + sort + "&term=(digital health OR mhealth)" + ((query && query !== "") ? " AND (" + query + ")" : "");
     const esummary = "efetch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&retmax=10&rettype=xml";
@@ -130,7 +144,7 @@ app.get("/", async (req, res) => {
 
     if (query || query === "") {
         if (retstart < (count - 10)) {
-             next = "/?query=" + query + "&start=" + (retstart + 10) + "&sort=" + req.query.sort;
+             next = "/search/?query=" + query + "&start=" + (retstart + 10) + "&sort=" + req.query.sort;
              window = [retstart + 1, retstart + 10];
          } else {
              next = null;
@@ -144,7 +158,7 @@ app.get("/", async (req, res) => {
         summaries = [];
     }
 
-    res.render("index", {query: query, sort: req.query.sort, results: summaries, window: window, count: count, time: (Date.now() - start)/1000, next: next, quickLinks: quickLinks});
+    res.render("search", {query: query, sort: req.query.sort, results: summaries, window: window, count: count, time: (Date.now() - start)/1000, next: next, quickLinks: quickLinks});
 });
 
 const server = app.listen(3100, () => {
