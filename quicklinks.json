@@ -1,13 +1,13 @@
 [
-    {"name": "MNCH", "link": "/search/?query=maternal OR newborn OR child"},
-    {"name": "FPRH", "link": "/search/?query=family planning OR reproductive health"},
-    {"name": "HIV/AIDS", "link": "/search/?query=hiv OR aids"},
-    {"name": "Malaria", "link": "/search/?query=malaria"},
-    {"name": "CHWs", "link": "/search/?query=community health worker OR chw"},
-    {"name": "Decision-making", "link": "/search/?query=clinical decision making OR performance support"},
-    {"name": "Education & training", "link": "/search/?query=((preservice OR medical) education) OR training OR mentor OR capacity building OR workforce&"},
-    {"name": "Behavior change", "link": "/search/?query=behavior change"},
-    {"name": "Governance", "link": "/search/?query=governance OR policy OR regulation OR legislation"},
-    {"name": "Privacy & security", "link": "/search/?query=privacy+OR+security"},
-    {"name": "mHealth", "link": "/search/?query=mHealth OR \"mobile health\" OR ((mobile OR cell) AND phone) OR app"}
+    {"name": "MNCH", "link": "/search/?query=maternal OR newborn OR child&sort=relevant"},
+    {"name": "FPRH", "link": "/search/?query=family planning OR reproductive health&sort=relevant"},
+    {"name": "HIV/AIDS", "link": "/search/?query=hiv OR aids&sort=relevant"},
+    {"name": "Malaria", "link": "/search/?query=malaria&sort=relevant"},
+    {"name": "CHWs", "link": "/search/?query=community health worker OR chw&sort=relevant"},
+    {"name": "Decision-making", "link": "/search/?query=clinical decision making OR performance support&sort=relevant"},
+    {"name": "Education & training", "link": "/search/?query=((preservice OR medical) education) OR training OR mentor OR capacity building OR workforce&sort=relevant"},
+    {"name": "Behavior change", "link": "/search/?query=behavior change&sort=relevant"},
+    {"name": "Governance", "link": "/search/?query=governance OR policy OR regulation OR legislation&sort=relevant"},
+    {"name": "Privacy & security", "link": "/search/?query=privacy+OR+security&sort=relevant"},
+    {"name": "mHealth", "link": "/search/?query=mHealth OR \"mobile health\" OR ((mobile OR cell) AND phone) OR app&sort=relevant"}
 ]
