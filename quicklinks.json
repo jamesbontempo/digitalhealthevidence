@@ -9,5 +9,6 @@
     {"name": "Behavior change", "link": "/search/?query=behavior change&sort=relevant"},
     {"name": "Governance", "link": "/search/?query=governance OR policy OR regulation OR legislation&sort=relevant"},
     {"name": "Privacy & security", "link": "/search/?query=privacy+OR+security&sort=relevant"},
-    {"name": "mHealth", "link": "/search/?query=mHealth OR \"mobile health\" OR ((mobile OR cell) AND phone) OR app&sort=relevant"}
+    {"name": "mHealth", "link": "/search/?query=mHealth OR \"mobile health\" OR ((mobile OR cell) AND phone) OR app&sort=relevant"},
+    {"name": "Systematic review", "link": "/search/?query=(systematic review OR meta-analysis) NOT protocol&sort=relevant"}
 ]
