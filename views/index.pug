@@ -40,7 +40,9 @@ html
                     button(type="submit" style="height:25px;font-size:15px;margin-left:5px") Search
         div(style="width:100%;margin-top:40px")
             div(style="text-align:center")
-                span(style="font-size:15px;font-family:sans-serif") Quick searches:
-                each link in quickLinks
-                    span(style="font-size:15px;font-family:sans-serif;padding-left:7px")
-                        a(href=link.link) #{link.name}
+                span(style="font-size:15px;font-family:sans-serif;display:block;margin-bottom:5px") Quick searches
+                each subject in quickLinks
+                    div(style="margin:0px;margin-bottom:3px")
+                        each link in subject.links
+                            span(style="font-size:15px;font-family:sans-serif;padding-right:7px")
+                                a(href=link.link) #{link.name}

@@ -128,7 +128,7 @@ app.get("/search/", async (req, res) => {
     const query = req.query.query;
     const sort = (req.query.sort && req.query.sort === "recent") ? "most+recent" : "relevance";
     const eutils = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
-    const esearch = "esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&usehistory=y&sort=" + sort + "&term=(digital health OR mhealth)" + ((query && query !== "") ? " AND (" + query + ")" : "");
+    const esearch = "esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&usehistory=y&sort=" + sort + "&term=telemedicine" + ((query && query !== "") ? " AND (" + query + ")" : "");
     const esummary = "efetch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&retmax=10&rettype=xml";
     const retstart = (req.query.start && Number.isInteger(parseFloat(req.query.start, 10))) ? parseFloat(req.query.start, 10) : 0;
     var count, queryKey, webEnv, summaries;

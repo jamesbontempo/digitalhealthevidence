@@ -41,12 +41,6 @@ html
                         select#sort(name="sort" onchange="this.form.submit();" style="height:25px;font-size:15px;margin-left:5px")
                             option(value="relevant" selected=(sort=="relevant")) Sort by most relevant
                             option(value="recent" selected=(sort=="recent" || !sort)) Sort by most recent
-        div(style="margin-top:10px")
-            div(style="position:relative;left:150px")
-                span(style="font-size:15px;font-family:sans-serif") Quick searches:
-                each link in quickLinks
-                    span(style="font-size:15px;font-family:sans-serif;padding-left:7px")
-                        a(href=link.link) #{link.name}
         div#results(style="margin-top:10px")
             each result in results
                 div(style="margin-bottom:20px")
@@ -60,8 +54,14 @@ html
                                         a(href=field.value)=field.value
                                 else
                                     td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px")=field.value
-        div#navigate(style = "margin-top:10px")
-            div(style="position:relative;left:150px")
+        div#navigate(style="width:100%;text-align:center;margin-top:10px")
+            div
                 if next
                     a(href=next)
                         button(type="sumbit" style="height:25px;font-size:15px") Fetch more results
+        div(style="width:100%;text-align:center;margin:20px")
+            div
+                each subject in quickLinks
+                    each link in subject.links
+                        span(style="font-size:15px;font-family:sans-serif;padding-left:7px")
+                            a(href=link.link) #{link.name}
