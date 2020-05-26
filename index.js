@@ -132,8 +132,8 @@ app.get("/static/:file", (req, res) => {
 app.get("/search/", async (req, res) => {
     const start = Date.now();
 
-    if (req.query.query === undefined) {res.status(400).send("Bad request"); return; }
-    if (req.query.sort === undefined) {res.status(400).send("Bad request"); return; }
+    if (req.query.query === undefined) {res.status(400).send("Bad request (missing query)"); return; }
+    if (req.query.sort === undefined) {res.status(400).send("Bad request (missing sort)"); return; }
 
     const eutils = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
     const esearch = "esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&usehistory=y";
@@ -153,7 +153,7 @@ app.get("/search/", async (req, res) => {
             sort = "relevance";
             break;
         default:
-            res.status(400).send("Bad request");
+            res.status(400).send("Bad request (unkown sort)");
             return;
     }
 
