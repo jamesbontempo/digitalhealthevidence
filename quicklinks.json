@@ -5,7 +5,8 @@
             {"name": "MNCH", "link": "/search/?query=(maternal OR infant OR child) health&sort=relevant"},
             {"name": "FPRH", "link": "/search/?query=family planning OR (reproductive OR sexual) health&sort=relevant"},
             {"name": "HIV/AIDS", "link": "/search/?query=hiv OR aids&sort=relevant"},
-            {"name": "Malaria", "link": "/search/?query=malaria&sort=relevant"}
+            {"name": "Malaria", "link": "/search/?query=malaria&sort=relevant"},
+            {"name": "Noncommunicable disease", "link": "/search/?query=noncommunicable disease&sort=relevant"}
         ]
     },
     {
@@ -13,22 +14,35 @@
         "links": [
             {"name": "Decision-making", "link": "/search/?query=clinical decision making OR (decision OR performance) support&sort=relevant"},
             {"name": "Education & training", "link": "/search/?query=((premedical OR medical) education) OR preceptorship OR (inservice OR on-the-job) training OR mentoring OR capacity building OR staff development&sort=relevant"},
-            {"name": "Behavior change", "link": "/search/?query=behavior change OR behvioral&sort=relevant"}
+            {"name": "Behavior change", "link": "/search/?query=behavior change OR behvioral OR health (behavior OR promotion)&sort=relevant"}
         ]
     },
     {
         "name": "Issue",
         "links": [
             {"name": "Governance", "link": "/search/?query=governance OR public policy OR health planning OR government regulation OR legislation as topic&sort=relevant"},
-            {"name": "Privacy & security", "link": "/search/?query=privacy OR confidentiality OR computer security&sort=relevant"}
+            {"name": "Privacy & security", "link": "/search/?query=privacy OR confidentiality OR computer security&sort=relevant"},
+            {"name": "Equity", "link": "/search/?query=health equity&sort=relevant"}
         ]
     },
     {
-        "name": "",
+        "name": "Population",
         "links": [
             {"name": "CHWs", "link": "/search/?query=(community health workers OR chw) OR frontline health worker&sort=relevant"},
-            {"name": "mHealth", "link": "/search/?query=mHealth OR mobile health OR mobile applications&sort=relevant"},
-            {"name": "Systematic reviews", "link": "/search/?query=(systematic review OR meta-analysis) NOT protocol&sort=relevant"}
+            {"name": "Youth & adolescents", "link": "/search/?query=adolescents OR teens OR youth&sort=relevant"}
+        ]
+    },
+    {
+        "name": "Research",
+        "links": [
+            {"name": "Systematic reviews", "link": "/search/?query=(systematic review OR meta-analysis) NOT protocol&sort=relevant"},
+            {"name": "Protocols & research design", "link": "/search/?query=clinical trial protocols as topic OR clinical research protocol OR evaluation studies as topic OR research design&sort=relevant"}
+        ]
+    },
+    {
+        "name": "Other",
+        "links": [
+            {"name": "mHealth", "link": "/search/?query=mHealth OR mobile health OR mobile applications&sort=relevant"}
         ]
     }
 ]

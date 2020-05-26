@@ -21,10 +21,9 @@ html
         meta(name="twitter:description" content="A platform for searching the Digital Health evidence base")
         meta(name="twitter:image" content="http://digitalhealthevidence.net/static/logo_square.png")
 
-        link(rel="shortcut icon" href="favicon.ico")
         script(async src="https://www.googletagmanager.com/gtag/js?id=UA-167414889-1")
         script.
-            window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-167414889-1');
+            window.dataLayer = window.dataLayer || []; if (window.location.hostname === "localhost") window['ga-disable-UA-167414889-1'] = true; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-167414889-1');
     body
         div(style="width:100%;margin-top:100px")
             div(style="height:74px;text-align:center")
@@ -38,6 +37,7 @@ html
                 form(action="/search/")
                     input(name="query" value=query style="height:20px;width:500px;font-size:13px;padding-left:3px")
                     button(type="submit" style="height:25px;font-size:15px;margin-left:5px") Search
+                    input(type="hidden" name="sort" value="added")
         div(style="width:100%;margin-top:40px")
             div(style="text-align:center")
                 span(style="font-size:15px;font-family:sans-serif;display:block;margin-bottom:5px") Quick searches
@@ -45,4 +45,4 @@ html
                     div(style="margin:0px;margin-bottom:3px")
                         each link in subject.links
                             span(style="font-size:15px;font-family:sans-serif;padding-right:7px")
-                                a(href=link.link) #{link.name}
+                                a(href=link.link.replace(/\s+/g, "+")) #{link.name}

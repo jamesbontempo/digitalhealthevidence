@@ -48,7 +48,7 @@ const processSearch = (data) => {
 
 const processSummary = (data) => {
     const elements = convert.xml2js(data).elements;
-    var title, authors, authorInitials, authorLast, journal, abstract, pubDate, pubYear, pubMonth, pubDay, doi;
+    var title, authors, authorInitials, authorLast, journal, abstract, pubDate, pubMedDate, pubYear, pubMonth, pubDay, doi;
     var summaries = [];
     for (var i = 0; i < elements.length; i++) {
         if (elements[i].name === "PubmedArticleSet") {
@@ -57,9 +57,13 @@ const processSummary = (data) => {
                     if (elements[i].elements[j].elements[k].name === "MedlineCitation") {
                         for (var l = 0; l < elements[i].elements[j].elements[k].elements.length; l++) {
                             if (elements[i].elements[j].elements[k].elements[l].name === "Article") {
-                                title = ""; authors = []; journal = ""; abstract = ""; doi = "";
+                                title = ""; authors = []; journal = ""; pubDate= ""; abstract = ""; doi = "";
                                 for (var m = 0; m < elements[i].elements[j].elements[k].elements[l].elements.length; m++) {
                                     switch(elements[i].elements[j].elements[k].elements[l].elements[m].name) {
+                                        case "ArticleDate":
+                                            elements[i].elements[j].elements[k].elements[l].elements[m].elements.forEach(e => {switch(e.name) { case "Year": pubYear = e.elements[0].text; break; case "Month": pubMonth = e.elements[0].text; break; case "Day": pubDay = e.elements[0].text; break; } });
+                                            pubDate = [pubYear, pubMonth.padStart(2, "0"), pubDay.padStart(2, "0")].join("-");
+                                            break;
                                         case "ArticleTitle":
                                             title = elements[i].elements[j].elements[k].elements[l].elements[m].elements[0].text;
                                             break;
@@ -68,7 +72,6 @@ const processSummary = (data) => {
                                             break;
                                         case "Journal":
                                             elements[i].elements[j].elements[k].elements[l].elements[m].elements.forEach(e => { if (e.name === "Title") journal = e.elements[0].text; });
-                                            //pubDate = [pubYear, pubMonth, pubDay].join("-");
                                             break;
                                         case "Abstract":
                                             elements[i].elements[j].elements[k].elements[l].elements[m].elements.forEach(e => { if (e.name === "AbstractText") { if (e.elements) e.elements.forEach(e => { if (e.type === "text") abstract += e.text + " "; }) } });
@@ -81,20 +84,20 @@ const processSummary = (data) => {
                             }
                         }
                     } else if (elements[i].elements[j].elements[k].name === "PubmedData") {
-                        pubYear = ""; pubMonth = ""; pubDay = ""; pubDate = "";
+                        pubYear = ""; pubMonth = ""; pubDay = ""; pubMedDate = "";
                         for (var n = 0; n < elements[i].elements[j].elements[k].elements.length; n++) {
                             if (elements[i].elements[j].elements[k].elements[n].name === "History") {
                                 for (var o = 0; o < elements[i].elements[j].elements[k].elements[n].elements.length; o++) {
                                     if (elements[i].elements[j].elements[k].elements[n].elements[o].attributes.PubStatus === "pubmed") {
                                         elements[i].elements[j].elements[k].elements[n].elements[o].elements.forEach(e => { switch(e.name) { case "Year": pubYear = e.elements[0].text; break; case "Month": pubMonth = e.elements[0].text; break; case "Day": pubDay = e.elements[0].text; break; }});
-                                        pubDate = [pubYear, pubMonth.padStart(2, "0"), pubDay.padStart(2, "0")].join("-");
+                                        pubMedDate = [pubYear, pubMonth.padStart(2, "0"), pubDay.padStart(2, "0")].join("-");
                                     }
                                 }
                             }
                         }
                     }
                 }
-                summaries.push([{name: "Title", value: title}, {name: "Authors", value: authors.join("; ")}, {name: "Journal", value: journal}, {name: "Publication Date", value: pubDate}, {name: "Abstract", value: abstract}, {name: "Link", value: doi}]);
+                summaries.push([{name: "Title", value: title}, {name: "Authors", value: authors.join("; ")}, {name: "Journal", value: journal}, {name: "Publication Date", value: pubDate}, {name: "Date Added to PubMed", value: pubMedDate}, {name: "Abstract", value: abstract}, {name: "Link", value: doi}]);
             }
         }
     }
@@ -110,7 +113,7 @@ app.use(favicon(path.join(__dirname, "static", "favicon.ico")));
 app.set("views", "./views");
 app.set("view engine", "pug");
 
-const baseQuery = "(digital health OR eHealth OR mhealth)";
+const baseQuery = "digital health OR eHealth OR mhealth";
 
 app.get("/", async (req,res) => {
     const searchResults = await fetch("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&term=" + baseQuery);
@@ -127,22 +130,40 @@ app.get("/static/:file", (req, res) => {
 });
 
 app.get("/search/", async (req, res) => {
-    const query = req.query.query;
-    const sort = (req.query.sort && req.query.sort === "recent") ? "most+recent" : "relevance";
+    const start = Date.now();
+
+    if (req.query.query === undefined) {res.status(400).send("Bad request"); return; }
+    if (req.query.sort === undefined) {res.status(400).send("Bad request"); return; }
+
     const eutils = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
-    const esearch = "esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&usehistory=y&sort=" + sort + "&term=" + baseQuery + ((query && query !== "") ? " AND (" + query + ")" : "");
+    const esearch = "esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&usehistory=y";
     const esummary = "efetch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&retmax=10&rettype=xml";
+
+    const query = req.query.query;
+    var sort;
+
+    switch(req.query.sort) {
+        case "added":
+            sort = "most recent";
+            break;
+        case "published":
+            sort = "pub date";
+            break;
+        case "relevant":
+            sort = "relevance";
+            break;
+        default:
+            res.status(400).send("Bad request");
+            return;
+    }
+
     const retstart = (req.query.start && Number.isInteger(parseFloat(req.query.start, 10))) ? parseFloat(req.query.start, 10) : 0;
     var count, queryKey, webEnv, summaries;
 
-    const start = Date.now();
-
-    const searchResults = await fetch(eutils + esearch);
+    const searchResults = await fetch(eutils + esearch + "&sort=" + sort + "&term=" + baseQuery + ((query && query !== "") ? " AND (" + query + ")" : ""));
     [count, queryKey, webEnv] = processSearch(searchResults);
 
     var next, window;
-
-    const quickLinks = JSON.parse(fs.readFileSync("quicklinks.json", "utf8"));
 
     if (query || query === "") {
         if (retstart < (count - 10)) {
@@ -152,6 +173,7 @@ app.get("/search/", async (req, res) => {
              next = null;
              window = [retstart + 1, count];
         }
+
         const summaryResults = await fetch(eutils + esummary + "&query_key=" + queryKey + "&WebEnv=" + webEnv + "&retstart=" + retstart);
         summaries = processSummary(summaryResults);
     } else {
@@ -159,6 +181,8 @@ app.get("/search/", async (req, res) => {
         window = [];
         summaries = [];
     }
+
+    const quickLinks = JSON.parse(fs.readFileSync("quicklinks.json", "utf8"));
 
     res.render("search", {query: query, sort: (req.query.sort) ? req.query.sort : "relevant", results: summaries, window: window, count: count, time: (Date.now() - start)/1000, next: next, quickLinks: quickLinks});
 });

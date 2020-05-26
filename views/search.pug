@@ -21,10 +21,9 @@ html
         meta(name="twitter:description" content="A platform for searching the Digital Health evidence base")
         meta(name="twitter:image" content="http://digitalhealthevidence.net/static/logo_square.png")
 
-        link(rel="shortcut icon" href="favicon.ico")
         script(async src="https://www.googletagmanager.com/gtag/js?id=UA-167414889-1")
         script.
-            window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-167414889-1');
+            window.dataLayer = window.dataLayer || []; if (window.location.hostname === "localhost") window['ga-disable-UA-167414889-1'] = true; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-167414889-1');
     body
         div
             div(style="position:relative;left:150px;height:40px")
@@ -40,7 +39,8 @@ html
                         span(style = "height:25px;font-size:15px;margin-left:3px;color:grey;font-family:sans-serif;margin-left:5px") (fetched in #{time} seconds)
                         select#sort(name="sort" onchange="this.form.submit();" style="height:25px;font-size:15px;margin-left:5px")
                             option(value="relevant" selected=(sort=="relevant")) Sort by most relevant
-                            option(value="recent" selected=(sort=="recent" || !sort)) Sort by most recent
+                            option(value="added" selected=(sort=="added")) Sort by most recently added
+                            //option(value="published" selected=(sort=="published")) Sort by most recently published
         div#results(style="margin-top:10px")
             each result in results
                 div(style="margin-bottom:20px")
@@ -64,4 +64,4 @@ html
                 each subject in quickLinks
                     each link in subject.links
                         span(style="font-size:15px;font-family:sans-serif;padding-left:7px")
-                            a(href=link.link) #{link.name}
+                            a(href=link.link.replace(/\s+/g, "+")) #{link.name}
