@@ -4,7 +4,14 @@ const favicon = require('serve-favicon')
 const fs = require("fs");
 const path = require("path")
 const https = require("https");
-const convert = require("xml-js");
+
+const baseQuery = "\"digital health\"[Text Word] OR eHealth OR mhealth";
+
+const eutils = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
+const esearch = "esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&usehistory=y";
+const esummary = "efetch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&retmax=10&rettype=xml";
+
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const fetch = async (url) => {
     return new Promise((resolve, reject) => {
@@ -24,84 +31,48 @@ const fetch = async (url) => {
 };
 
 const processSearch = (data) => {
-    const elements = convert.xml2js(data).elements;
-    var count, queryKey, webEnv;
-    for (var i = 0; i < elements.length; i++) {
-        if (elements[i].name === "eSearchResult") {
-            for (var j = 0; j < elements[i].elements.length; j++) {
-                switch(elements[i].elements[j].name) {
-                    case "Count":
-                        count = elements[i].elements[j].elements[0].text;
-                        break;
-                    case "QueryKey":
-                        queryKey = elements[i].elements[j].elements[0].text;
-                        break;
-                    case "WebEnv":
-                        webEnv = elements[i].elements[j].elements[0].text;
-                        break;
-                }
-            }
-        }
-    }
+    const result = data.split("\n").join("");
+    var count = ((count = result.match(/<Count>(.+?)<\/Count>/))) ? count[1] : 0;
+    var queryKey = ((queryKey = result.match(/<QueryKey>(.+?)<\/QueryKey>/))) ? queryKey[1] : "";
+    var webEnv = ((webEnv = result.match(/<WebEnv>(.+?)<\/WebEnv>/))) ? webEnv[1] : "";
     return [count, queryKey, webEnv];
 }
 
 const processSummary = (data) => {
-    const elements = convert.xml2js(data).elements;
-    var title, authors, authorInitials, authorLast, journal, abstract, pubDate, pubMedDate, pubYear, pubMonth, pubDay, doi;
     var summaries = [];
-    for (var i = 0; i < elements.length; i++) {
-        if (elements[i].name === "PubmedArticleSet") {
-            for (var j = 0; j < elements[i].elements.length; j++) {
-                for (var k = 0; k < elements[i].elements[j].elements.length; k++) {
-                    if (elements[i].elements[j].elements[k].name === "MedlineCitation") {
-                        for (var l = 0; l < elements[i].elements[j].elements[k].elements.length; l++) {
-                            if (elements[i].elements[j].elements[k].elements[l].name === "Article") {
-                                title = ""; authors = []; journal = ""; pubDate= ""; abstract = ""; doi = "";
-                                for (var m = 0; m < elements[i].elements[j].elements[k].elements[l].elements.length; m++) {
-                                    switch(elements[i].elements[j].elements[k].elements[l].elements[m].name) {
-                                        case "ArticleDate":
-                                            elements[i].elements[j].elements[k].elements[l].elements[m].elements.forEach(e => {switch(e.name) { case "Year": pubYear = e.elements[0].text; break; case "Month": pubMonth = e.elements[0].text; break; case "Day": pubDay = e.elements[0].text; break; } });
-                                            pubDate = [pubYear, pubMonth.padStart(2, "0"), pubDay.padStart(2, "0")].join("-");
-                                            break;
-                                        case "ArticleTitle":
-                                            title = elements[i].elements[j].elements[k].elements[l].elements[m].elements[0].text;
-                                            break;
-                                        case "AuthorList":
-                                            elements[i].elements[j].elements[k].elements[l].elements[m].elements.forEach(e => { authorInitials = ""; authorLast = ""; e.elements.forEach(e => { switch (e.name) { case "LastName": authorLast = e.elements[0].text; break; case "Initials": authorInitials = e.elements[0].text; break; } }); authors.push(authorLast + ", " + authorInitials) });
-                                            break;
-                                        case "Journal":
-                                            elements[i].elements[j].elements[k].elements[l].elements[m].elements.forEach(e => { if (e.name === "Title") journal = e.elements[0].text; });
-                                            break;
-                                        case "Abstract":
-                                            elements[i].elements[j].elements[k].elements[l].elements[m].elements.forEach(e => { if (e.name === "AbstractText") { if (e.elements) e.elements.forEach(e => { if (e.type === "text") abstract += e.text + " "; }) } });
-                                            break;
-                                        case "ELocationID":
-                                            if (elements[i].elements[j].elements[k].elements[l].elements[m].attributes.EIdType === "doi") doi = "https://doi.org/" + elements[i].elements[j].elements[k].elements[l].elements[m].elements[0].text;
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    } else if (elements[i].elements[j].elements[k].name === "PubmedData") {
-                        pubYear = ""; pubMonth = ""; pubDay = ""; pubMedDate = "";
-                        for (var n = 0; n < elements[i].elements[j].elements[k].elements.length; n++) {
-                            if (elements[i].elements[j].elements[k].elements[n].name === "History") {
-                                for (var o = 0; o < elements[i].elements[j].elements[k].elements[n].elements.length; o++) {
-                                    if (elements[i].elements[j].elements[k].elements[n].elements[o].attributes.PubStatus === "pubmed") {
-                                        elements[i].elements[j].elements[k].elements[n].elements[o].elements.forEach(e => { switch(e.name) { case "Year": pubYear = e.elements[0].text; break; case "Month": pubMonth = e.elements[0].text; break; case "Day": pubDay = e.elements[0].text; break; }});
-                                        pubMedDate = [pubYear, pubMonth.padStart(2, "0"), pubDay.padStart(2, "0")].join("-");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                summaries.push([{name: "Title", value: title}, {name: "Authors", value: authors.join("; ")}, {name: "Journal", value: journal}, {name: "Publication Date", value: pubDate}, {name: "Date Added to PubMed", value: pubMedDate}, {name: "Abstract", value: abstract}, {name: "Link", value: doi}]);
-            }
-        }
+    const articles = data.split("\n").join("").matchAll(/(<PubmedArticle>.+?<\/PubmedArticle>)/g);
+    for (const article of articles) {
+        var title = ((title = article[0].match(/<ArticleTitle>(.+?)<\/ArticleTitle>/))) ? title[1] : "";
+        var authors = ((authors = Array.from(article[0].matchAll(/<LastName>(.+?)<\/LastName>.*?<Initials>(.+?)<\/Initials>/g)))) ? authors.map(n => n[1] + ", " + n[2]).join("; ") : "";
+        var journal = ((journal = article[0].match(/<Title>(.+?)<\/Title>/))) ? journal[1] : "";
+        var pubYear = ((pubYear = article[0].match(/<PubDate>.*?<Year>(.+?)<\/Year>.*?<\/PubDate>/))) ? pubYear[1] : "";
+        var pubMonth = ((pubMonth = article[0].match(/<PubDate>.*?<Month>(.+?)<\/Month>.*?<\/PubDate>/))) ? pubMonth[1] : "";
+        var pubDay = ((pubDay = article[0].match(/<PubDate>.*?<Day>(.+?)<\/Day>.*?<\/PubDate>/))) ? parseFloat(pubDay[1]) : "";
+        const pubDate = ((pubDay !== "") ? pubDay + " " : "") + ((pubMonth !== "") ? ((!Number.isNaN(parseFloat(pubMonth))) ? months[parseFloat(pubMonth)-1] : pubMonth) + " " : "") + ((pubYear) ? pubYear : "");
+
+        var pubMedYear = ((pubMedYear = article[0].match(/PubMedPubDate PubStatus="pubmed">.*?<Year>(.+?)<\/Year>.*?<\/PubMedPubDate>/))) ? pubMedYear[1] : "";
+        var pubMedMonth = ((pubMedMonth = article[0].match(/PubMedPubDate PubStatus="pubmed">.*?<Month>(.+?)<\/Month>.*?<\/PubMedPubDate>/))) ? pubMedMonth[1] : "";
+        var pubMedDay = ((pubMedDay = article[0].match(/PubMedPubDate PubStatus="pubmed">.*?<Day>(.+?)<\/Day>.*?<\/PubMedPubDate>/))) ? pubMedDay[1] : "";
+        const pubMedDate = ((pubMedDay !== "") ? pubMedDay + " " : "") + ((pubMedMonth !== "") ? ((!Number.isNaN(parseFloat(pubMedMonth))) ? months[parseFloat(pubMedMonth)-1] : pubMedMonth) + " " : "") + ((pubMedYear) ? pubMedYear : "");
+
+        var abstract = ((abstract = article[0].match(/(<AbstractText.*>.+<\/AbstractText>)/))) ? abstract[1].replace(/<AbstractText.*?>/g, "").replace(/<\/AbstractText>/g, " ") : "";
+        var doi = ((doi = article[0].match(/<ArticleId IdType="doi">(.+?)<\/ArticleId>/))) ? doi[1] : "";
+        summaries.push([{name: "Title", value: title}, {name: "Authors", value: authors}, {name: "Journal", value: journal}, {name: "Publication Date", value: pubDate}, {name: "Date Added to PubMed", value: pubMedDate}, {name: "Abstract", value: abstract}, {name: "Link", value: "http://doi.org/" + doi}]);
     }
     return summaries;
+};
+
+const getSort = (sort) => {
+    switch(sort) {
+        case "added":
+            return "";
+        case "published":
+            return "pub date";
+        case "relevant":
+            return "relevance";
+        default:
+            return "unknown";
+    }
 };
 
 const app = express();
@@ -112,8 +83,6 @@ app.use(favicon(path.join(__dirname, "static", "favicon.ico")));
 
 app.set("views", "./views");
 app.set("view engine", "pug");
-
-const baseQuery = "digital health OR eHealth OR mhealth";
 
 app.get("/", async (req,res) => {
     const searchResults = await fetch("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&term=" + baseQuery);
@@ -135,27 +104,10 @@ app.get("/search/", async (req, res) => {
     if (req.query.query === undefined) {res.status(400).send("Bad request (missing query)"); return; }
     if (req.query.sort === undefined) {res.status(400).send("Bad request (missing sort)"); return; }
 
-    const eutils = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
-    const esearch = "esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&usehistory=y";
-    const esummary = "efetch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&retmax=10&rettype=xml";
-
     const query = req.query.query;
-    var sort;
+    const sort = getSort(req.query.sort);
 
-    switch(req.query.sort) {
-        case "added":
-            sort = "most recent";
-            break;
-        case "published":
-            sort = "pub date";
-            break;
-        case "relevant":
-            sort = "relevance";
-            break;
-        default:
-            res.status(400).send("Bad request (unkown sort)");
-            return;
-    }
+    if (sort === "unknown") {res.status(400).send("Bad request (unkown sort)"); return; }
 
     const retstart = (req.query.start && Number.isInteger(parseFloat(req.query.start, 10))) ? parseFloat(req.query.start, 10) : 0;
     var count, queryKey, webEnv, summaries;
