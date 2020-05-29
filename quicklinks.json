@@ -41,9 +41,10 @@
         ]
     },
     {
-        "name": "Other",
+        "name": "Technology",
         "links": [
             {"name": "mHealth", "link": "/search/?query=mHealth OR mobile health OR mobile applications&sort=relevant"},
+            {"name": "SMS", "link": "/search/?query=text messaging&sort=relevant"},
             {"name": "Chatbots", "link": "/search/?query=chatbot&sort=relevant"},
             {"name": "AI", "link": "/search/?query=artificial intelligence&sort=relevant"}
         ]
