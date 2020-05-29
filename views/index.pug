@@ -35,9 +35,9 @@ html
         div(style="width:100%;margin-top:40px")
             div(style="text-align:center")
                 form(action="/search/")
-                    input(name="query" value=query style="height:20px;width:500px;font-size:13px;padding-left:3px")
-                    button(type="submit" style="height:25px;font-size:15px;margin-left:5px") Search
-                    input(type="hidden" name="sort" value="added")
+                    input#query(name="query" value=query style="height:20px;width:500px;font-size:13px;padding-left:3px")
+                    button(type="submit" onclick="if (document.getElementById('query').value != '') document.getElementById('sort').value = 'relevant'; this.form.submit();" style="height:25px;font-size:15px;margin-left:5px") Search
+                    input#sort(type="hidden" name="sort" value="added")
         div(style="width:100%;margin-top:40px")
             div(style="text-align:center")
                 span(style="font-size:15px;font-family:sans-serif;display:block;margin-bottom:5px") Quick searches
