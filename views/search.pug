@@ -7,6 +7,7 @@ html
         meta(charset="utf-8")
         meta(name="author" content="James BonTempo")
         meta(name="description" content="A platform for searching the Digital Health evidence base")
+        meta(name="viewport" content="width=device-width, initial-scale=1")
 
         meta(property="og:type" content="website")
         meta(property="og:url" content="http://digitalhealthevidence.net")
@@ -21,27 +22,41 @@ html
         meta(name="twitter:description" content="A platform for searching the Digital Health evidence base")
         meta(name="twitter:image" content="http://digitalhealthevidence.net/static/logo_square.png")
 
+        style.
+            img {max-width: 100%}
+            .query {width:500px}
+            .button {margin-left:5px}
+            .sort {margin-left:5px}
+            @media screen and (max-width:600px) {
+                .query {width:350px}
+                .sort {margin-top:5px;margin-left:0px;display:block}
+            }
+            @media screen and (max-width:450px) {
+                .query {width:98%;display:block;margin-bottom:5px}
+                .button {margin-left:0px}
+            }
+
         script(async src="https://www.googletagmanager.com/gtag/js?id=UA-167414889-1")
         script.
             window.dataLayer = window.dataLayer || []; if (window.location.hostname === "localhost") window['ga-disable-UA-167414889-1'] = true; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-167414889-1');
-    body
-        div
-            div(style="position:relative;left:150px;height:40px")
+    body(style="margin:0px;padding:10px")
+        div(style="width:100%")
+            div
                 a(href="/" style="text-decoration:none")
                     img(src="/static/logo_horizontal_small.png")
-        div(style="margin-top:5px")
-            div(style="position:relative;left:150px")
+        div(style="width:100%;margin-top:5px")
+            div
                 form(action="/search/")
-                    input(name="query" value=query style="height:20px;width:600px;font-size:13px;padding-left:3px")
-                    button(type="submit" onclick="document.getElementById('sort').value='relevant'; this.form.submit();" style="height:25px;font-size:15px;margin-left:5px") Search
+                    input(name="query" class="query" value=query style="height:19px;font-size:13px;padding-left:3px")
+                    button(type="submit" class="button" onclick="document.getElementById('sort').value='relevant'; this.form.submit();" style="height:25px;font-size:13px") Search
                     div(style="margin-top:10px")
-                        span(style="height:25px;font-size:15px;font-family:sans-serif") Showing #{window[0]} to #{window[1]} of #{count} records
-                        span(style = "height:25px;font-size:15px;margin-left:3px;color:grey;font-family:sans-serif;margin-left:5px") (fetched in #{time} seconds)
-                        select#sort(name="sort" onchange="this.form.submit();" style="height:25px;font-size:15px;margin-left:5px")
+                        span(style="height:25px;font-size:14px;font-family:sans-serif") Showing #{window[0]} to #{window[1]} of #{count} records
+                        span(style = "height:25px;font-size:14px;margin-left:3px;color:grey;font-family:sans-serif;margin-left:5px") (fetched in #{time} seconds)
+                        select#sort(name="sort" class="sort" onchange="this.form.submit();" style="height:25px;font-size:13px")
                             option(value="relevant" selected=(sort=="relevant")) Sort by most relevant
                             option(value="added" selected=(sort=="added")) Sort by most recently added
                             option(value="published" selected=(sort=="published")) Sort by most recently published
-        div#results(style="margin-top:10px")
+        div#results(style="width:100%;margin-top:10px")
             each result in results
                 div(style="margin-bottom:20px")
                     table(style="border-spacing:0px;border:1px solid #dddddd;width:100%")
@@ -50,7 +65,7 @@ html
                                 td(style="width:136px;font-size:14px;font-family:sans-serif;font-weight:bold;white-space:nowrap;text-align:right;vertical-align:top;background-color:#dddddd;padding:7px")=field.name
 
                                 if field.name === "Link"
-                                    td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px")
+                                    td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px;overflow-wrap:anywhere")
                                         a(href=field.value)=field.value
                                 else
                                     td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px")!=field.value
@@ -58,8 +73,8 @@ html
             div
                 if next
                     a(href=next)
-                        button(type="sumbit" style="height:25px;font-size:15px") Fetch more results
-        div(style="width:100%;text-align:center;margin:20px")
+                        button(type="sumbit" style="height:25px;font-size:13px") Fetch more results
+        div(style="width:100%;text-align:center;margin-top:20px")
             div
                 each subject in quickLinks
                     each link in subject.links

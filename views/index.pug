@@ -7,6 +7,7 @@ html
         meta(charset="utf-8")
         meta(name="author" content="James BonTempo")
         meta(name="description" content="A platform for searching the Digital Health evidence base")
+        meta(name="viewport" content="width=device-width, initial-scale=1")
 
         meta(property="og:type" content="website")
         meta(property="og:url" content="http://digitalhealthevidence.net")
@@ -20,6 +21,18 @@ html
         meta(name="twitter:title" content="Digital Health Evidence")
         meta(name="twitter:description" content="A platform for searching the Digital Health evidence base")
         meta(name="twitter:image" content="http://digitalhealthevidence.net/static/logo_square.png")
+
+        style.
+            img {max-width: 100%}
+            .query{width:500px}
+            .button {margin-left:5px}
+            @media screen and (max-width:600px) {
+                .query {width:350px}
+            }
+            @media screen and (max-width:450px) {
+                .query {width:98%;display:block;margin-bottom:5px}
+                .button {margin-left:0px}
+            }
 
         script(async src="https://www.googletagmanager.com/gtag/js?id=UA-167414889-1")
         script.
@@ -35,8 +48,8 @@ html
         div(style="width:100%;margin-top:40px")
             div(style="text-align:center")
                 form(action="/search/")
-                    input#query(name="query" value=query style="height:20px;width:500px;font-size:13px;padding-left:3px")
-                    button(type="submit" onclick="if (document.getElementById('query').value != '') document.getElementById('sort').value = 'relevant'; this.form.submit();" style="height:25px;font-size:15px;margin-left:5px") Search
+                    input#query(name="query" class="query" value=query style="height:19px;font-size:13px;padding-left:3px")
+                    button(type="submit" class="button" onclick="if (document.getElementById('query').value != '') document.getElementById('sort').value = 'relevant'; this.form.submit();" style="height:25px;font-size:13px;margin-left:5px") Search
                     input#sort(type="hidden" name="sort" value="added")
         div(style="width:100%;margin-top:40px")
             div(style="text-align:center")
