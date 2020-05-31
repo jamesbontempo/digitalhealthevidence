@@ -154,7 +154,7 @@ app.get("/feed/:sort/:format", async (req, res) => {
     summaries = processSummary(summaryResults);
 
     const feed = new Feed({
-        title: "Digital Health Evidence",
+        title: "Digital Health Evidence (" + sortDesc + ")",
         description: "The " + sortDesc + " Digital Health evidence",
         id: "http://digitalhealthevidence.net",
         link: "http://digitalhealthevidence.net",
