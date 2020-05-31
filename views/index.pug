@@ -13,14 +13,14 @@ html
         meta(property="og:url" content="http://digitalhealthevidence.net")
         meta(property="og:title" content="Digital Health Evidence")
         meta(property="og:description" content="A platform for searching the Digital Health evidence base")
-        meta(property="og:image" content="http://digitalhealthevidence.net/static/logo_square.png")
+        meta(property="og:image" content="http://digitalhealthevidence.net/logo_square.png")
         meta(property="og:image:width" content="400px")
         meta(property="og:image:height" content="400px")
 
         meta(name="twitter:card" content="summary")
         meta(name="twitter:title" content="Digital Health Evidence")
         meta(name="twitter:description" content="A platform for searching the Digital Health evidence base")
-        meta(name="twitter:image" content="http://digitalhealthevidence.net/static/logo_square.png")
+        meta(name="twitter:image" content="http://digitalhealthevidence.net/logo_square.png")
 
         style.
             img {max-width: 100%}
@@ -40,8 +40,8 @@ html
     body
         div(style="width:100%;margin-top:100px")
             div(style="height:74px;text-align:center")
-                a(href="/search/" style="text-decoration:none")
-                    img(src="/static/logo_horizontal.png")
+                a(href="/" style="text-decoration:none")
+                    img(src="/logo_horizontal.png")
         div(style="width:100%")
             div(style="text-align:center")
                 span(style="font-size:15px;font-family:sans-serif;color:grey") Search from over #{count} relevant records indexed in PubMed
@@ -59,3 +59,9 @@ html
                         each link in subject.links
                             span(style="font-size:15px;font-family:sans-serif;padding-right:7px")
                                 a(href=link.link.replace(/\s+/g, "+")) #{link.name}
+        div(style="width:100%;margin-top:80px")
+            div(style="text-align:center")
+                span(style="font-size:15px;font-family:sans-serif;margin-bottom:5px")
+                    a(href="about.html") About Digital Health Evidence
+                span(style="font-size:15px;font-family:sans-serif;margin-left:15px;margin-bottom:5px")
+                    a(href="feeds.html") Web feeds

@@ -4,6 +4,7 @@ const favicon = require('serve-favicon')
 const fs = require("fs");
 const path = require("path")
 const https = require("https");
+const Feed = require("feed").Feed;
 
 const baseQuery = "\"digital health\"[Text Word] OR eHealth OR mhealth";
 
@@ -48,12 +49,12 @@ const processSummary = (data) => {
         var pubYear = ((pubYear = article[0].match(/<PubDate>.*?<Year>(.+?)<\/Year>.*?<\/PubDate>/))) ? pubYear[1] : "";
         var pubMonth = ((pubMonth = article[0].match(/<PubDate>.*?<Month>(.+?)<\/Month>.*?<\/PubDate>/))) ? pubMonth[1] : "";
         var pubDay = ((pubDay = article[0].match(/<PubDate>.*?<Day>(.+?)<\/Day>.*?<\/PubDate>/))) ? parseFloat(pubDay[1]) : "";
-        const pubDate = ((pubDay !== "") ? pubDay + " " : "") + ((pubMonth !== "") ? ((!Number.isNaN(parseFloat(pubMonth))) ? months[parseFloat(pubMonth)-1] : pubMonth) + " " : "") + ((pubYear) ? pubYear : "");
+        const pubDate = ((pubDay !== "") ? pubDay + " " : "1 ") + ((pubMonth !== "") ? ((!Number.isNaN(parseFloat(pubMonth))) ? months[parseFloat(pubMonth)-1] : pubMonth) + " " : "Dec ") + ((pubYear) ? pubYear : "");
 
         var pubMedYear = ((pubMedYear = article[0].match(/PubMedPubDate PubStatus="pubmed">.*?<Year>(.+?)<\/Year>.*?<\/PubMedPubDate>/))) ? pubMedYear[1] : "";
         var pubMedMonth = ((pubMedMonth = article[0].match(/PubMedPubDate PubStatus="pubmed">.*?<Month>(.+?)<\/Month>.*?<\/PubMedPubDate>/))) ? pubMedMonth[1] : "";
         var pubMedDay = ((pubMedDay = article[0].match(/PubMedPubDate PubStatus="pubmed">.*?<Day>(.+?)<\/Day>.*?<\/PubMedPubDate>/))) ? pubMedDay[1] : "";
-        const pubMedDate = ((pubMedDay !== "") ? pubMedDay + " " : "") + ((pubMedMonth !== "") ? ((!Number.isNaN(parseFloat(pubMedMonth))) ? months[parseFloat(pubMedMonth)-1] : pubMedMonth) + " " : "") + ((pubMedYear) ? pubMedYear : "");
+        const pubMedDate = ((pubMedDay !== "") ? pubMedDay + " " : "1 ") + ((pubMedMonth !== "") ? ((!Number.isNaN(parseFloat(pubMedMonth))) ? months[parseFloat(pubMedMonth)-1] : pubMedMonth) + " " : "Dec ") + ((pubMedYear) ? pubMedYear : "");
 
         var abstract = ((abstract = article[0].match(/(<AbstractText.*>.+<\/AbstractText>)/))) ? abstract[1].replace(/<AbstractText.*?>/g, "").replace(/<\/AbstractText>/g, " ") : "";
         var doi = ((doi = article[0].match(/<ArticleId IdType="doi">(.+?)<\/ArticleId>/))) ? doi[1] : "";
@@ -83,20 +84,6 @@ app.use(favicon(path.join(__dirname, "static", "favicon.ico")));
 
 app.set("views", "./views");
 app.set("view engine", "pug");
-
-app.get("/", async (req,res) => {
-    const searchResults = await fetch("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?api_key=5a8c154e76a6cf874fac7ac38b5abe462e09&db=pubmed&term=" + baseQuery);
-    var count = processSearch(searchResults)[0];
-    count -= (count % 1000);
-
-    const quickLinks = JSON.parse(fs.readFileSync("quicklinks.json", "utf8"));
-
-    res.render("index", {count: count, quickLinks: quickLinks});
-});
-
-app.get("/static/:file", (req, res) => {
-    res.sendFile(req.params.file, {root: path.join(__dirname, "static")});
-});
 
 app.get("/search/", async (req, res) => {
     const start = Date.now();
@@ -137,6 +124,135 @@ app.get("/search/", async (req, res) => {
     const quickLinks = JSON.parse(fs.readFileSync("quicklinks.json", "utf8"));
 
     res.render("search", {query: query, sort: (req.query.sort) ? req.query.sort : "relevant", results: summaries, window: window, count: count, time: (Date.now() - start)/1000, next: next, quickLinks: quickLinks});
+});
+
+app.get("/feed/:sort/:format", async (req, res) => {
+    if (req.params.sort === undefined) {res.status(400).send("Bad request (missing sort)"); return; }
+    if (req.params.format === undefined) {res.status(400).send("Bad request (missing format)"); return; }
+
+    const sort = getSort(req.params.sort);
+
+    var sortDesc;
+    switch(req.params.sort) {
+        case "relevant":
+            sortDesc = "most relevant";
+            break;
+        case "added":
+            sortDesc = "most recently added";
+            break;
+        case "published":
+            sortDesc = "most recently published";
+            break;
+    }
+
+    var queryKey, webEnv, summaries;
+
+    const searchResults = await fetch(eutils + esearch + "&sort=" + sort + "&term=" + baseQuery);
+    [queryKey, webEnv] = processSearch(searchResults).slice(1);
+
+    const summaryResults = await fetch(eutils + esummary + "&query_key=" + queryKey + "&WebEnv=" + webEnv + "&retstart=0");
+    summaries = processSummary(summaryResults);
+
+    const feed = new Feed({
+        title: "Digital Health Evidence",
+        description: "The " + sortDesc + " Digital Health evidence",
+        id: "http://digitalhealthevidence.net",
+        link: "http://digitalhealthevidence.net",
+        language: "en",
+        image: "http://digitalhealthevidence/logo_horizontal_small.png",
+        favicon: "http://digitalhealthevidence.net/favicon.ico",
+        copyright: "",
+        updated: new Date(Date.now()),
+        feedLinks: {
+            rss: "http://digitalhealthevidence.net/feed/" + req.params.sort + "/rss",
+            atom: "http://digitalhealthevidence.net/feed/" + req.params.sort + "/atom",
+            json: "http://digitalhealthevidence.net/feed/" + req.params.sort + "/json"
+        },
+        author: {
+            name: "James BonTempo",
+            email: "jamesbontempo@gmail.com"
+        }
+    });
+
+    for (var i = 0; i < summaries.length; i++) {
+        var title, authors, journal, abstract, date, pubDate, pubMedDate, link;
+        for (var j = 0; j < summaries[i].length; j++) {
+            switch(summaries[i][j].name) {
+                case "Title":
+                    title = summaries[i][j].value;
+                    break;
+                case "Authors":
+                    authors = summaries[i][j].value;
+                    break;
+                case "Journal":
+                    journal = summaries[i][j].value;
+                    break;
+                case "Publication Date":
+                    date = summaries[i][j].value.split(" ");
+                    pubDate = new Date(date[2], months.findIndex(e => e == date[1]), date[0]);
+                    break;
+                case "Date Added to PubMed":
+                    date = summaries[i][j].value.split(" ");
+                    pubMedDate = new Date(date[2], months.findIndex(e => e == date[1]), date[0]);
+                    break;
+                case "Abstract":
+                    abstract = summaries[i][j].value;
+                    break;
+                case "Link":
+                    link = summaries[i][j].value;
+                    break;
+            }
+        }
+        feed.addItem({
+            title: title,
+            id: link,
+            link: link,
+            description: title + " - " + journal,
+            content: abstract,
+            author: [{name: authors}],
+            date: (req.params.sort === "added") ? pubMedDate : pubDate
+        });
+    }
+
+    switch(req.params.format) {
+        case "atom":
+            res.send(feed.atom1());
+            break;
+        case "json":
+            res.send(feed.json1());
+            break;
+        default:
+            res.send(feed.rss2());
+            break;
+    }
+});
+
+app.get("/index.html", async (req,res) => {
+    const searchResults = await fetch(eutils + esearch + "&term=" + baseQuery);
+    var count = processSearch(searchResults)[0];
+    count -= (count % 1000);
+
+    const quickLinks = JSON.parse(fs.readFileSync("quicklinks.json", "utf8"));
+
+    res.render("index", {count: count, quickLinks: quickLinks});
+});
+
+app.get("/:file", (req, res) => {
+    res.sendFile(req.params.file, {root: path.join(__dirname, "static")});
+});
+
+app.get("/static/:file", (req, res) => {
+    res.sendFile(req.params.file, {root: path.join(__dirname, "static")});
+});
+
+app.get("/", async (req,res) => {
+    const searchResults = await fetch(eutils + esearch + "&term=" + baseQuery);
+    var count = processSearch(searchResults)[0];
+    count -= (count % 1000);
+
+    const quickLinks = JSON.parse(fs.readFileSync("quicklinks.json", "utf8"));
+
+    res.render("index", {count: count, quickLinks: quickLinks});
 });
 
 const server = app.listen(3100, () => {
