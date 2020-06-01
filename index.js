@@ -175,7 +175,8 @@ app.get("/feed/:sort/:format", async (req, res) => {
         },
         author: {
             name: "James BonTempo",
-            email: "jamesbontempo@gmail.com"
+            email: "jamesbontempo@gmail.com",
+            link: "https://www.linkedin.com/in/jamesbontempo/"
         }
     });
 
