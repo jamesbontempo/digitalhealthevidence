@@ -46,6 +46,10 @@ const processSummary = (data) => {
         var title = ((title = article[0].match(/<ArticleTitle>(.+?)<\/ArticleTitle>/))) ? title[1] : "";
         var authors = ((authors = Array.from(article[0].matchAll(/<LastName>(.+?)<\/LastName>.*?<Initials>(.+?)<\/Initials>/g)))) ? authors.map(n => n[1] + ", " + n[2]).join("; ") : "";
         var journal = ((journal = article[0].match(/<Title>(.+?)<\/Title>/))) ? journal[1] : "";
+
+        var email = ((email = article[0].match(/<Affiliation>.*?\.\s+(.*?@.*?)\.<\/Affiliation>/))) ? email[1].replace(/Electronic address:\s+/, "") : "unknown@unknown.com";
+        var orcid = ((orcid = article[0].match(/<Identifier Source="ORCID">((\w{4}-){3}\w{4})<\/Identifier>/))) ? "https://orcid.org/" + orcid[1] : (email !== "unknown@unknown.com") ? "http://" + email.match(/@(.*)/)[1] : "http://unknown.com";
+
         var pubYear = ((pubYear = article[0].match(/<PubDate>.*?<Year>(.+?)<\/Year>.*?<\/PubDate>/))) ? pubYear[1] : "";
         var pubMonth = ((pubMonth = article[0].match(/<PubDate>.*?<Month>(.+?)<\/Month>.*?<\/PubDate>/))) ? pubMonth[1] : "";
         var pubDay = ((pubDay = article[0].match(/<PubDate>.*?<Day>(.+?)<\/Day>.*?<\/PubDate>/))) ? parseFloat(pubDay[1]) : "";
@@ -57,8 +61,9 @@ const processSummary = (data) => {
         const pubMedDate = ((pubMedDay !== "") ? pubMedDay + " " : "1 ") + ((pubMedMonth !== "") ? ((!Number.isNaN(parseFloat(pubMedMonth))) ? months[parseFloat(pubMedMonth)-1] : pubMedMonth) + " " : "Dec ") + ((pubMedYear) ? pubMedYear : "");
 
         var abstract = ((abstract = article[0].match(/(<AbstractText.*>.+<\/AbstractText>)/))) ? abstract[1].replace(/<AbstractText.*?>/g, "").replace(/<\/AbstractText>/g, " ") : "";
-        var doi = ((doi = article[0].match(/<ArticleId IdType="doi">(.+?)<\/ArticleId>/))) ? doi[1] : "";
-        summaries.push([{name: "Title", value: title}, {name: "Authors", value: authors}, {name: "Journal", value: journal}, {name: "Publication Date", value: pubDate}, {name: "Date Added to PubMed", value: pubMedDate}, {name: "Abstract", value: abstract}, {name: "Link", value: "http://doi.org/" + doi}]);
+        var doi = ((doi = article[0].match(/<ArticleId IdType="doi">(.+?)<\/ArticleId>/))) ? "http://doi.org/" + doi[1] : "";
+
+        summaries.push([{name: "Title", value: title}, {name: "Authors", value: authors}, {name: "Journal", value: journal}, {name: "Publication Date", value: pubDate}, {name: "Date Added to PubMed", value: pubMedDate}, {name: "Abstract", value: abstract}, {name: "Link", value: doi}, {name: "Contact email", value: email}, {name: "ORCID", value: orcid}]);
     }
     return summaries;
 };
@@ -156,8 +161,8 @@ app.get("/feed/:sort/:format", async (req, res) => {
     const feed = new Feed({
         title: "Digital Health Evidence (" + sortDesc + ")",
         description: "The " + sortDesc + " Digital Health evidence",
-        id: "http://digitalhealthevidence.net",
-        link: "http://digitalhealthevidence.net",
+        id: "http://digitalhealthevidence.net/",
+        link: "http://digitalhealthevidence.net/",
         language: "en",
         image: "http://digitalhealthevidence/logo_horizontal_small.png",
         favicon: "http://digitalhealthevidence.net/favicon.ico",
@@ -175,7 +180,7 @@ app.get("/feed/:sort/:format", async (req, res) => {
     });
 
     for (var i = 0; i < summaries.length; i++) {
-        var title, authors, journal, abstract, date, pubDate, pubMedDate, link;
+        var title, authors, journal, abstract, date, pubDate, pubMedDate, email, orcid, link;
         for (var j = 0; j < summaries[i].length; j++) {
             switch(summaries[i][j].name) {
                 case "Title":
@@ -198,6 +203,12 @@ app.get("/feed/:sort/:format", async (req, res) => {
                 case "Abstract":
                     abstract = summaries[i][j].value;
                     break;
+                case "Contact email":
+                    email = summaries[i][j].value;
+                    break;
+                case "ORCID":
+                    orcid = summaries[i][j].value;
+                    break;
                 case "Link":
                     link = summaries[i][j].value;
                     break;
@@ -209,14 +220,14 @@ app.get("/feed/:sort/:format", async (req, res) => {
             link: link,
             description: title + " - " + journal,
             content: abstract,
-            author: [{name: authors}],
+            author: [{name: authors, email: email, link: orcid}],
             date: (req.params.sort === "added") ? pubMedDate : pubDate
         });
     }
 
     switch(req.params.format) {
         case "atom":
-            res.set("Content-Type", "application/xml")
+            res.set("Content-Type", "application/atom+xml")
             res.send(feed.atom1());
             break;
         case "json":
@@ -224,7 +235,7 @@ app.get("/feed/:sort/:format", async (req, res) => {
             res.send(feed.json1());
             break;
         default:
-            res.set("Content-Type", "application/xml")
+            res.set("Content-Type", "application/rss+xml")
             res.send(feed.rss2());
             break;
     }
