@@ -216,12 +216,15 @@ app.get("/feed/:sort/:format", async (req, res) => {
 
     switch(req.params.format) {
         case "atom":
+            res.set("Content-Type", "application/xml")
             res.send(feed.atom1());
             break;
         case "json":
+            res.set("Content-Type", "application/json")
             res.send(feed.json1());
             break;
         default:
+            res.set("Content-Type", "application/xml")
             res.send(feed.rss2());
             break;
     }
