@@ -37,9 +37,9 @@ html
         script(async src="https://www.googletagmanager.com/gtag/js?id=UA-167414889-1")
         script.
             window.dataLayer = window.dataLayer || []; if (window.location.hostname === "localhost") window['ga-disable-UA-167414889-1'] = true; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-167414889-1');
-    body
-        div(style="width:100%;margin-top:100px")
-            div(style="height:74px;text-align:center")
+    body(style="margin:0px;padding:10px")
+        div(style="width:100%;padding-top:100px;")
+            div(style="text-align:center")
                 a(href="/" style="text-decoration:none")
                     img(src="/logo_horizontal.png")
         div(style="width:100%")
@@ -61,7 +61,11 @@ html
                                 a(href=link.link.replace(/\s+/g, "+")) #{link.name}
         div(style="width:100%;margin-top:80px")
             div(style="text-align:center")
-                span(style="font-size:15px;font-family:sans-serif;margin-bottom:5px")
+                span(style="font-size:15px;font-family:sans-serif;margin-bottom:5px;margin-right:15px")
                     a(href="about.html") About Digital Health Evidence
+                span &mdash;
+                span(style="font-size:15px;font-family:sans-serif;margin-left:15px;margin-bottom:5px;margin-right:15px")
+                    a(href="tips.html") Search tips
+                span &mdash;
                 span(style="font-size:15px;font-family:sans-serif;margin-left:15px;margin-bottom:5px")
                     a(href="feeds.html") Web feeds
