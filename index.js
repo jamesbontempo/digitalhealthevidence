@@ -242,21 +242,7 @@ app.get("/feed/:sort/:format", async (req, res) => {
     }
 });
 
-app.get("/index.html", async (req,res) => {
-    const searchResults = await fetch(eutils + esearch + "&term=" + baseQuery);
-    var count = processSearch(searchResults)[0];
-    count -= (count % 1000);
-
-    const quickLinks = JSON.parse(fs.readFileSync("quicklinks.json", "utf8"));
-
-    res.render("index", {count: count, quickLinks: quickLinks});
-});
-
 app.get("/:file", (req, res) => {
-    res.sendFile(req.params.file, {root: path.join(__dirname, "static")});
-});
-
-app.get("/static/:file", (req, res) => {
     res.sendFile(req.params.file, {root: path.join(__dirname, "static")});
 });
 
