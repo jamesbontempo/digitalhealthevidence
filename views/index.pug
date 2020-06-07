@@ -58,7 +58,7 @@ html
                 each subject in quickLinks
                     div(style="margin:0px;margin-bottom:3px")
                         each link in subject.links
-                            span(style="font-size:15px;font-family:sans-serif;padding-right:7px")
+                            span(style="font-size:15px;font-family:sans-serif;padding-right:7px;overflow-wrap:anywhere")
                                 a(href=link.link.replace(/\s+/g, "+")) #{link.name}
         div(style="width:100%;margin-top:80px")
             div(style="text-align:center")
