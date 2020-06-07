@@ -64,6 +64,7 @@ html
                         each field in result
                             if field.name !== "Contact email" && field.name !== "ORCID"
                                 tr
+                                    td(style="font-size:14px;font-family:sans-serif;font-weight:bold;white-space:nowrap;text-align:right;vertical-align:top;background-color:#dddddd;padding:7px")=field.name
                                     td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px;overflow-wrap:anywhere")
                                         if field.name === "Link"
                                             a(href=field.value)=field.value
@@ -78,5 +79,5 @@ html
             div
                 each subject in quickLinks
                     each link in subject.links
-                        span(style="font-size:15px;font-family:sans-serif;padding-left:7px")
+                        span(style="font-size:15px;font-family:sans-serif;padding-left:7px;overflow-wrap:anywhere")
                             a(href=link.link.replace(/\s+/g, "+")) #{link.name}
