@@ -64,13 +64,12 @@ html
                         each field in result
                             if field.name !== "Contact email" && field.name !== "ORCID"
                                 tr
-                                    td(style="width:136px;font-size:14px;font-family:sans-serif;font-weight:bold;white-space:nowrap;text-align:right;vertical-align:top;background-color:#dddddd;padding:7px")=field.name
-
-                                    if field.name === "Link"
-                                        td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px;overflow-wrap:anywhere")
+                                    td(style="font-size:14px;font-family:sans-serif;font-weight:bold;white-space:nowrap;text-align:right;vertical-align:top;background-color:#dddddd;padding:7px")=field.name
+                                    td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px;overflow-wrap:anywhere")
+                                        if field.name === "Link"
                                             a(href=field.value)=field.value
-                                    else
-                                        td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px")!=field.value
+                                        else
+                                            span!=field.value
         div#navigate(style="width:100%;text-align:center;margin-top:10px")
             div
                 if next
