@@ -161,17 +161,17 @@ app.get("/feed/:sort/:format", async (req, res) => {
     const feed = new Feed({
         title: "Digital Health Evidence (" + sortDesc + ")",
         description: "The " + sortDesc + " Digital Health evidence",
-        id: "http://digitalhealthevidence.net/",
-        link: "http://digitalhealthevidence.net/",
+        id: "http://www.digitalhealthevidence.net/",
+        link: "http://www.digitalhealthevidence.net/",
         language: "en",
-        image: "http://digitalhealthevidence/logo_horizontal_small.png",
-        favicon: "http://digitalhealthevidence.net/favicon.ico",
+        image: "http://www.digitalhealthevidence/logo_horizontal_small.png",
+        favicon: "http://www.digitalhealthevidence.net/favicon.ico",
         copyright: "",
         updated: new Date(Date.now()),
         feedLinks: {
-            rss: "http://digitalhealthevidence.net/feed/" + req.params.sort + "/rss",
-            atom: "http://digitalhealthevidence.net/feed/" + req.params.sort + "/atom",
-            json: "http://digitalhealthevidence.net/feed/" + req.params.sort + "/json"
+            rss: "http://www.digitalhealthevidence.net/feed/" + req.params.sort + "/rss",
+            atom: "http://www.digitalhealthevidence.net/feed/" + req.params.sort + "/atom",
+            json: "http://www.digitalhealthevidence.net/feed/" + req.params.sort + "/json"
         },
         author: {
             name: "James BonTempo",
