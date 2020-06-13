@@ -60,11 +60,11 @@ html
         div#results(style="width:100%;margin-top:10px")
             each result in results
                 div(style="margin-bottom:20px")
-                    table(style="border-spacing:0px;border:1px solid #dddddd;width:100%")
+                    table(style="border-spacing:0px;border:1px solid #dddddd;width:100%;table-layout:fixed")
                         each field in result
                             if field.name !== "Contact email" && field.name !== "ORCID"
                                 tr
-                                    td(style="font-size:14px;font-family:sans-serif;font-weight:bold;white-space:nowrap;text-align:right;vertical-align:top;background-color:#dddddd;padding:7px")=field.name
+                                    td(style="width:156px;font-size:14px;font-family:sans-serif;font-weight:bold;white-space:nowrap;text-align:right;vertical-align:top;background-color:#dddddd;padding:7px")=field.name
                                     td(style="font-size:14px;font-family:sans-serif;vertical-align:top;padding:7px;overflow-wrap:anywhere")
                                         if field.name === "Link"
                                             a(href=field.value)=field.value
