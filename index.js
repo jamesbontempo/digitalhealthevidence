@@ -110,12 +110,17 @@ app.get("/search/", async (req, res) => {
     var next, window;
 
     if (query || query === "") {
-        if (retstart < (count - 10)) {
-             next = "/search/?query=" + query + "&start=" + (retstart + 10) + "&sort=" + req.query.sort;
-             window = [retstart + 1, retstart + 10];
-         } else {
-             next = null;
-             window = [retstart + 1, count];
+        if (count > 0) {
+            if (retstart < (count - 10)) {
+                 next = "/search/?query=" + query + "&start=" + (retstart + 10) + "&sort=" + req.query.sort;
+                 window = [retstart + 1, retstart + 10];
+             } else {
+                 next = null;
+                 window = [retstart + 1, count];
+            }
+        } else {
+            next = null;
+            window = [0, 0];
         }
 
         const summaryResults = await fetch(eutils + esummary + "&query_key=" + queryKey + "&WebEnv=" + webEnv + "&retstart=" + retstart);

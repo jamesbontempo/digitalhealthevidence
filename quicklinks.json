@@ -41,6 +41,15 @@
         ]
     },
     {
+        "name": "Application",
+        "links": [
+            {"name": "Medical Records", "link": "/search/?query=electronic health records OR ehr[Text Word] OR emr[Text Word]&sort=relevant"},
+            {"name": "Laboratory", "link": "/search/?query=laboratory information systems OR lis[Text Word] OR lmis[Text Word] NOT computer simulation&sort=relevant"},
+            {"name": "Pharmacy", "link": "/search/?query=pharmacy information system* OR telepharmacy&sort=relevant"},
+            {"name": "Human Resources", "link": "/search/?query=human resource information system*&sort=relevant"}
+        ]
+    },
+    {
         "name": "Technology",
         "links": [
             {"name": "mHealth", "link": "/search/?query=mHealth OR mobile health OR mobile applications&sort=relevant"},
