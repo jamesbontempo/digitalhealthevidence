@@ -15,7 +15,7 @@
     "serve-favicon": "^2.5.0"
   },
   "devDependencies": {
-    "eslint": "^7.0.0",
+    "eslint": "^9.39.1",
     "pug-lint": "^2.6.0"
   },
   "author": {
